@@ -5,6 +5,7 @@
 int main()
 {
     GLFWwindow* window;
+    float r = 0.0f;
 
     //Initialize the library
     if(!glfwInit()){
@@ -33,6 +34,13 @@ int main()
     //Loop until the user closes the window
     while(!glfwWindowShouldClose(window)){
         
+        r += 0.01f;
+        if(r > 1.0f)
+            r = 0.0f;
+
+
+        glClearColor(r, 0.2f, 0.3f, 1.0f);
+
         //clears the window to the default color (black)
         //GL_COLOR_BUFFER_BIT means we are clearing the color buffer, what you see
         //on the screen
