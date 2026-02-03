@@ -31,16 +31,39 @@ int main()
         return -1;
     }
 
+    glViewport(0, 0, 640, 480);
+
     float vertices[] = {
-    // positions
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
+     // Front face
+    -0.5f, -0.5f,  0.5f,
+     0.5f, -0.5f,  0.5f,
+     0.5f,  0.5f,  0.5f,
+    -0.5f,  0.5f,  0.5f,
+
+    // Back face
+    -0.5f, -0.5f, -0.5f,
+     0.5f, -0.5f, -0.5f,
+     0.5f,  0.5f, -0.5f,
+    -0.5f,  0.5f, -0.5f
     };
 
-    //Creating Vertex Buffer Object
-    unsigned int VBO;
+    unsigned int indices[] ={
+        0, 1, 2,  2, 3, 0,
+        1, 5, 6,  6, 2, 1,
+        5, 4, 7,  7, 6, 5,
+        4, 0, 3,  3, 7, 4,
+        3, 2, 6,  6, 7, 3,
+        4, 5, 1,  1, 0, 4
+    };
+
+    unsigned int VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO); //Ask OpenGL to create a new VAO
     glGenBuffers(1, &VBO); // ask OpenGL to create a new empty buffer (GPU memory container), VBO now refers to that buffer
+    glGenBuffers(1, &EBO); // Ask OpenGL to create 1 Element Buffer Object and store its ID in EBO
+
+    glBindVertexArray(VAO); //Make this VAO the active one
+
+    // VBO
     glBindBuffer(GL_ARRAY_BUFFER, VBO); //Make this buffer the active one for vertex data. Any vertex-buffer opeation now applies to this GPU memory
     glBufferData(
         GL_ARRAY_BUFFER, //The active vertex buffer
@@ -49,13 +72,16 @@ int main()
         GL_STATIC_DRAW //We will not change this data often
     ); 
 
-
-    //Creating a Vertex array Object
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO); //Ask OpenGL to create a new VAO
-    glBindVertexArray(VAO); //Make this VAO the active one
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); //Bind the buffer that contains the raw vertex data
+    // Index buffer
+    // Because a VAO is bound, this EBO becomes part of the VAO state
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // Allocate GPU memory and upload index data into the EBO
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER, // Target: index buffer
+        sizeof(indices),         // Size of index data in bytes
+        indices,                 // Pointer to CPU index array
+        GL_STATIC_DRAW           // Hint: indices will not change
+    );
 
     glVertexAttribPointer(
         0, //Attribute index (mathces layout location in shader)
@@ -68,6 +94,7 @@ int main()
 
     glEnableVertexAttribArray(0);
 
+    glBindVertexArray(0); // The VAO now fully describes how to draw the cube
 
     //Vertex shader
     const char* vertexShaderSource = R"(
@@ -114,7 +141,12 @@ int main()
 
         glUseProgram(shaderProgram); //Tell OpenGL: "use this shader program when drawing". This decides how vertices are processed and what color pixels get
         glBindVertexArray(VAO); //Tell OpenGL: "use these rules to read vertex data". This connects the shader to the vertex data layout
-        glDrawArrays(GL_TRIANGLES, 0 , 3); //Actually draw something, Read 3 vertices, starting from the first one, Every 3 vertices form one triangle
+        glDrawElements(
+            GL_TRIANGLES,          // Primitive type
+            36,                    // Number of indices to read
+            GL_UNSIGNED_INT,       // Type of each index
+            0                      // Offset into the index buffer
+        );
         
         //swap front and back buffers
         //Modern OpenGL uses double-buffering: you draw on the back buffer while the front
