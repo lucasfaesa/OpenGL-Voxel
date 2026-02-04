@@ -165,10 +165,10 @@ int main()
         //f the data inside that matrix is floats
         //v passing a vector
         glUniformMatrix4fv(
-            modelLoc, 
-            1, 
-            GL_FALSE, 
-            glm::value_ptr(model)
+            modelLoc, //this is the ID/address of the variable in the shader
+            1, //this is the count. We are sending one matrix
+            GL_FALSE, //Do you want to transpose the matrix? (swap rows and columns)
+            glm::value_ptr(model) //This is the Data. GLM matrices are C++ objects.
         );
 
         glBindVertexArray(VAO); //Tell OpenGL: "use these rules to read vertex data". This connects the shader to the vertex data layout
