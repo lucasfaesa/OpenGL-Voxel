@@ -15,6 +15,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # "There is another CMAKE project here. Build it as part of mine"
 add_subdirectory(third_party/glfw)
+add_subdirectory(third_party/glm)
 
 # Creates a static library target called glad
 add_library(glad third_party/glad/src/glad.c)
@@ -27,7 +28,7 @@ target_include_directories(glad PUBLIC third_party/glad/include)
 add_executable(openGL_study src/main.cpp)
 
 #declares dependencies. 1 - links compiled code, 2 - propagates include paths, 3 - propagates compile definitions
-target_link_libraries(openGL_study glfw glad)
+target_link_libraries(openGL_study glfw glad glm)
 
 #Linux-only requirement, dl provides: dlopen, dlsym. GLFW uses this to load OpenGL function pointers.
 if(UNIX AND NOT APPLE)

@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
+
 
 int main()
 {
@@ -96,12 +100,16 @@ int main()
 
     glBindVertexArray(0); // The VAO now fully describes how to draw the cube
 
-    //Vertex shader
+    //Vertex shader, model comes from c++
     const char* vertexShaderSource = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
-    void main() {
-        gl_Position = vec4(aPos, 1.0);
+
+    uniform mat4 model;
+
+    void main() 
+    {
+        gl_Position = model * vec4(aPos, 1.0);
     }
     )";
 
@@ -131,8 +139,19 @@ int main()
     glDeleteShader(vertexShader); //Delete the standalone vertex shader object, the program keeps its compiled version
     glDeleteShader(fragmentShader); //Delete the standlaone fragment shader object
 
+
+    glm::mat4 model = glm::mat4(1.0f); //Creating identity matrix, no transformation
+
+    unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model"); //finds the location of te uniform inside the GPU program
+
     //Loop until the user closes the window
     while(!glfwWindowShouldClose(window)){
+        
+        float time = glfwGetTime();
+
+        model = glm::mat4(1.0f); //resetting model matrix every frame
+        float degreesPerSecond = glm::radians(95.0f);
+        model = glm::rotate(model, degreesPerSecond * time, glm::vec3(0.5f, 1.0f, 0.0f)); //mat4, angle, axis
         
         //clears the window to the default color (black)
         //GL_COLOR_BUFFER_BIT means we are clearing the color buffer, what you see
@@ -140,6 +159,18 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shaderProgram); //Tell OpenGL: "use this shader program when drawing". This decides how vertices are processed and what color pixels get
+        
+        //glUniform means "I want to send a Uniform value to the shader"
+        //Matrix4 "I am sending a 4x4 matrix"
+        //f the data inside that matrix is floats
+        //v passing a vector
+        glUniformMatrix4fv(
+            modelLoc, 
+            1, 
+            GL_FALSE, 
+            glm::value_ptr(model)
+        );
+
         glBindVertexArray(VAO); //Tell OpenGL: "use these rules to read vertex data". This connects the shader to the vertex data layout
         glDrawElements(
             GL_TRIANGLES,          // Primitive type
