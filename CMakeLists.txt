@@ -25,7 +25,7 @@ add_library(glad third_party/glad/src/glad.c)
 #If this was PRIVATE my app could not see glad/glad.h
 target_include_directories(glad PUBLIC third_party/glad/include)
 
-add_executable(openGL_study src/main.cpp)
+add_executable(openGL_study src/main.cpp src/Camera.cpp)
 
 #declares dependencies. 1 - links compiled code, 2 - propagates include paths, 3 - propagates compile definitions
 target_link_libraries(openGL_study glfw glad glm)
