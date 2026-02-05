@@ -32,6 +32,7 @@ int main()
     //hides mouse and lock to the center
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+
     //Loads function pointers for OpenGL
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
         std::cerr << "Failed to initialize GLAD" << std::endl;
@@ -146,10 +147,7 @@ int main()
     glDeleteShader(vertexShader); //Delete the standalone vertex shader object, the program keeps its compiled version
     glDeleteShader(fragmentShader); //Delete the standlaone fragment shader object
 
-
     glm::mat4 model = glm::mat4(1.0f); //Creating identity matrix, no transformation
-
-    unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model"); //finds the location of te uniform inside the GPU program
 
     float lastFrame = 0.0f;
 
@@ -161,6 +159,9 @@ int main()
     );
 
     int projLoc = glGetUniformLocation(shaderProgram, "projection");
+    int viewLoc = glGetUniformLocation(shaderProgram, "view");
+    unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model"); //finds the location of te uniform inside the GPU program
+
     //OpenGL is a state machine. There is exactly one active shader program at a time.
     //It tells opengl "from now on, this shader program is the active one for any operations that depends on a shader"
     glUseProgram(shaderProgram);
@@ -169,6 +170,10 @@ int main()
     //Loop until the user closes the window
     while(!glfwWindowShouldClose(window))
     {
+        //Processes OS and window events, like keyboard/mouse input and window closing
+        //Without htis, the window would become unresponsive or not close
+        glfwPollEvents();
+
         float time = glfwGetTime();
 
         float currentFrame = glfwGetTime();
@@ -179,16 +184,21 @@ int main()
         bool backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
         bool left = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
         bool right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+        bool up = glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS;
+        bool down = glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS;
 
-        camera.ProcessKeyboard(forward, backward, left, right, deltaTime);
+        camera.ProcessKeyboard(forward, backward, left, right, up, down, deltaTime);
+
+        double xPos, yPos;
+        glfwGetCursorPos(window, &xPos, &yPos);
+        camera.ProcessMouse(xPos, yPos);
 
         model = glm::mat4(1.0f); //resetting model matrix every frame
         float degreesPerSecond = glm::radians(95.0f);
         model = glm::rotate(model, degreesPerSecond * time, glm::vec3(0.5f, 1.0f, 0.0f)); //mat4, angle, axis
-        
+
         //updating view every frame because camera can move every frame
         glm::mat4 view = camera.GetViewMatrix();
-        int viewLoc = glGetUniformLocation(shaderProgram, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
         //clears the window to the default color (black)
@@ -220,11 +230,6 @@ int main()
         //Modern OpenGL uses double-buffering: you draw on the back buffer while the front
         //buffer is displayed, then swap them to avoid flickering
         glfwSwapBuffers(window);
-
-
-        //Processes OS and window events, like keyboard/mouse input and window closing
-        //Without htis, the window would become unresponsive or not close
-        glfwPollEvents();
     }
 
     glfwTerminate();

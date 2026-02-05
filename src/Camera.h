@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <GLFW/glfw3.h>
 
 class Camera {
     public:
@@ -27,12 +28,18 @@ class Camera {
     );
 
     //Returns the view matrix
-    glm::mat4 GetViewMatrix();
+    glm::mat4 GetViewMatrix() const;
 
     //Processes keyboard input
-    void ProcessKeyboard(bool forward, bool backward, bool left, bool right, float deltaTime);
-
+    void ProcessKeyboard(bool forward, bool backward, bool left, bool right, bool up, bool down, float deltaTime);
+    void ProcessMouse(const double& xpos, const double& ypos);
     private:
     void UpdateCameraVectors();
 
+    double lastMouseX;
+    double lastMouseY;
+    double deltaX;
+    double deltaY;
+    bool firstMouse = true;
+    static constexpr float sensitivity = 0.1f;
 };

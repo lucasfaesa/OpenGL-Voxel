@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) 
                 : Position(position),WorldUp(up), Yaw(yaw), Pitch(pitch), MovementSpeed(2.5f)
@@ -17,12 +18,12 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 //glm::lookAt is the function that creates your View Matrix
 //It is essentialy the "Director" that tells the world how to position
 //itself so it looks like you are standin in a specific spot
-glm::mat4 Camera::GetViewMatrix(){
+glm::mat4 Camera::GetViewMatrix() const {
     return glm::lookAt(Position, Position+Front, Up);
 }
 
-void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right, float deltaTime){
-    float velocity = MovementSpeed * deltaTime;
+void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right, bool up, bool down, float deltaTime){
+    const float velocity = MovementSpeed * deltaTime;
 
     if(forward)
         Position += Front * velocity;
@@ -32,7 +33,11 @@ void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right,
         Position -= Right * velocity;
     if(right)
         Position += Right * velocity;
-    }
+    if (up)
+        Position += Up * velocity;
+    if (down)
+        Position -= Up * velocity;
+}
 
 void Camera::UpdateCameraVectors(){
     
@@ -45,4 +50,30 @@ void Camera::UpdateCameraVectors(){
     Front = glm::normalize(front);
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up    = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::ProcessMouse(const double& xpos, const double& ypos)
+{
+    if(firstMouse)
+    {
+        lastMouseX = xpos;
+        lastMouseY = ypos;
+        firstMouse = false;
+    }
+
+    deltaX = xpos - lastMouseX;
+    deltaY = lastMouseY - ypos;
+
+    lastMouseX = xpos;
+    lastMouseY = ypos;
+
+    deltaX *= sensitivity;
+    deltaY *= sensitivity;
+
+    Yaw += deltaX;
+    Pitch += deltaY;
+
+    Pitch = std::clamp(Pitch, -89.0f, 89.0f);
+
+    UpdateCameraVectors();
 }
