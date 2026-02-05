@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Camera.h"
 #include <iostream>
 
 
@@ -36,6 +37,8 @@ int main()
     }
 
     glViewport(0, 0, 640, 480);
+
+    Camera camera;
 
     float vertices[] = {
      // Front face
@@ -106,10 +109,12 @@ int main()
     layout (location = 0) in vec3 aPos;
 
     uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
 
     void main() 
     {
-        gl_Position = model * vec4(aPos, 1.0);
+        gl_Position = projection * view * model * vec4(aPos, 1.0);
     }
     )";
 
@@ -144,21 +149,50 @@ int main()
 
     unsigned int modelLoc = glGetUniformLocation(shaderProgram, "model"); //finds the location of te uniform inside the GPU program
 
+    float lastFrame = 0.0f;
+
+    glm::mat4 projection = glm::perspective(
+        glm::radians(45.0f), //FOV
+        640.0f/480.0f, //Aspect ratio
+        0.1f, //near plane
+        100.0f //far plane
+    );
+
+    int projLoc = glGetUniformLocation(shaderProgram, "projection");
+    //OpenGL is a state machine. There is exactly one active shader program at a time.
+    //It tells opengl "from now on, this shader program is the active one for any operations that depends on a shader"
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, &projection[0][0]);
+
     //Loop until the user closes the window
-    while(!glfwWindowShouldClose(window)){
-        
+    while(!glfwWindowShouldClose(window))
+    {
         float time = glfwGetTime();
+
+        float currentFrame = glfwGetTime();
+        float deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        bool forward = glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS;
+        bool backward = glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS;
+        bool left = glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS;
+        bool right = glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS;
+
+        camera.ProcessKeyboard(forward, backward, left, right, deltaTime);
 
         model = glm::mat4(1.0f); //resetting model matrix every frame
         float degreesPerSecond = glm::radians(95.0f);
         model = glm::rotate(model, degreesPerSecond * time, glm::vec3(0.5f, 1.0f, 0.0f)); //mat4, angle, axis
         
+        //updating view every frame because camera can move every frame
+        glm::mat4 view = camera.GetViewMatrix();
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+
         //clears the window to the default color (black)
         //GL_COLOR_BUFFER_BIT means we are clearing the color buffer, what you see
         //on the screen
         glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shaderProgram); //Tell OpenGL: "use this shader program when drawing". This decides how vertices are processed and what color pixels get
         
         //glUniform means "I want to send a Uniform value to the shader"
         //Matrix4 "I am sending a 4x4 matrix"
@@ -172,6 +206,7 @@ int main()
         );
 
         glBindVertexArray(VAO); //Tell OpenGL: "use these rules to read vertex data". This connects the shader to the vertex data layout
+        
         glDrawElements(
             GL_TRIANGLES,          // Primitive type
             36,                    // Number of indices to read
