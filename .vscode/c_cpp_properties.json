@@ -2,7 +2,13 @@
     "configurations": [
         {
             "name": "Linux",
-            "compileCommands": "${workspaceFolder}/build/compile_commands.json"
+            "compileCommands": [
+                "${workspaceFolder}/build/compile_commands.json"
+            ],
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/third_party/glm"
+            ]
         }
     ],
     "version": 4
