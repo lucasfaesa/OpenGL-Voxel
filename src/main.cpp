@@ -29,6 +29,8 @@ int main()
     //Make the window's context current
     glfwMakeContextCurrent(window);
 
+    //hides mouse and lock to the center
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     //Loads function pointers for OpenGL
     if(!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
