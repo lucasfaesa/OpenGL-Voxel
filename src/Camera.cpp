@@ -1,15 +1,21 @@
 #include "Camera.h"
-#include <cmath>
-#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
 #include <algorithm>
+#include <iostream>
+#include <ostream>
 
-Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch) 
-                : Position(position),WorldUp(up), Yaw(yaw), Pitch(pitch), MovementSpeed(2.5f)
+Camera::Camera()
 {
-    Front = glm::vec3(0.0f, 0.0f, -1.0f);
+    position = {0,0,3};
+    front = {0,0,-1};
+    worldUp = {0,1,0};
+
+    yaw = -90.0f;
+    pitch = 0.0f;
+    movementSpeed = 3.0f;
+
     UpdateCameraVectors();
 }
-
 
 //eye = camera position
 //center = where the camera is looking
@@ -18,62 +24,60 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 //glm::lookAt is the function that creates your View Matrix
 //It is essentialy the "Director" that tells the world how to position
 //itself so it looks like you are standin in a specific spot
-glm::mat4 Camera::GetViewMatrix() const {
-    return glm::lookAt(Position, Position+Front, Up);
+glm::mat4 Camera::GetViewMatrix() const
+{
+    return glm::lookAt(position, position + front, up);
 }
 
-void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right, bool up, bool down, float deltaTime){
-    const float velocity = MovementSpeed * deltaTime;
+glm::mat4 Camera::GetProjectionMatrix(float aspect) const
+{
+    return glm::perspective(glm::radians(fov), aspect, near_plane, far_plane);
+}
 
-    if(forward)
-        Position += Front * velocity;
-    if(backward)
-        Position -= Front * velocity;
-    if(left)
-        Position -= Right * velocity;
-    if(right)
-        Position += Right * velocity;
+void Camera::ProcessKeyboard(bool forward, bool backward, bool left, bool right, bool up, bool down, float deltaTime) {
+    const float velocity = movementSpeed * deltaTime;
+
+    if (forward)
+        position += front * velocity;
+    if (backward)
+        position -= front * velocity;
+
+    // Use 'this->right' to be explicit
+    if (left)
+        position -= this->right * velocity;
+    if (right)
+        position += this->right * velocity;
+
+    // Use 'this->up' for vertical movement
     if (up)
-        Position += Up * velocity;
+        position += this->up * velocity;
     if (down)
-        Position -= Up * velocity;
+        position -= this->up * velocity;
 }
 
 void Camera::UpdateCameraVectors(){
     
-    glm::vec3 front;
+    glm::vec3 f;
     
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+    f.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    f.y = sin(glm::radians(pitch));
+    f.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-    Front = glm::normalize(front);
-    Right = glm::normalize(glm::cross(Front, WorldUp));
-    Up    = glm::normalize(glm::cross(Right, Front));
+    front = glm::normalize(f);
+    right = glm::normalize(glm::cross(front, worldUp));
+    up    = glm::normalize(glm::cross(right, front));
 }
 
-void Camera::ProcessMouse(const double& xpos, const double& ypos)
+void Camera::ProcessMouse(float dx, float dy)
 {
-    if(firstMouse)
-    {
-        lastMouseX = xpos;
-        lastMouseY = ypos;
-        firstMouse = false;
-    }
+    dx *= sensitivity;
+    dy *= sensitivity;
 
-    deltaX = xpos - lastMouseX;
-    deltaY = lastMouseY - ypos;
+    yaw += dx;
+    pitch += dy;
 
-    lastMouseX = xpos;
-    lastMouseY = ypos;
-
-    deltaX *= sensitivity;
-    deltaY *= sensitivity;
-
-    Yaw += deltaX;
-    Pitch += deltaY;
-
-    Pitch = std::clamp(Pitch, -89.0f, 89.0f);
+    pitch = std::clamp(pitch, minPitch, maxPitch);
 
     UpdateCameraVectors();
 }
+
