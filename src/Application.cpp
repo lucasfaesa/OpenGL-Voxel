@@ -2,13 +2,12 @@
 #include "Mesh.h"
 
 Application::Application() {
-    mesh = nullptr; // Initialize as null
     model = glm::mat4(1.0f);
 }
 
 void Application::Init() {
     // Only call this after the OpenGL context is current and GLAD is loaded
-    mesh = new Mesh();
+    mesh = std::make_unique<Mesh>();
 }
 
 void Application::ProcessInput(GLFWwindow *window, float deltaTime) {
@@ -57,5 +56,5 @@ glm::mat4 Application::GetModelMatrix() const {
     return model;
 }
 Mesh *Application::GetMesh() const {
-    return mesh;
+    return mesh.get();
 }

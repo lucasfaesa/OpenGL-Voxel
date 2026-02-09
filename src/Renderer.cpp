@@ -6,7 +6,7 @@
 
 Renderer::Renderer()
 {
-    shader = new Shader();
+    shader = std::make_unique<Shader>();
     glEnable(GL_DEPTH_TEST);
 }
 

@@ -22,7 +22,7 @@ public:
     void EndFrame(GLFWwindow* window);
 
 private:
-    Shader* shader;
+    std::unique_ptr<Shader> shader = nullptr;
 };
 
 

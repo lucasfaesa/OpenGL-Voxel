@@ -27,7 +27,7 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    renderer = new Renderer();
+    renderer = std::make_unique<Renderer>();
 }
 
 void Engine::Run()

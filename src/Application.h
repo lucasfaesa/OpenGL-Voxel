@@ -18,13 +18,9 @@ public:
     glm::mat4 GetModelMatrix() const;
     Mesh* GetMesh() const;
 
-    ~Application() {
-        delete mesh;
-    }
-
 private:
     Camera camera;
     glm::mat4 model {};
-    Mesh* mesh {nullptr};
+    std::unique_ptr<Mesh> mesh = nullptr;
     bool firstMouse = true;
 };

@@ -3,10 +3,13 @@
 //
 #pragma once
 
+#include <memory>
 #include <glad/glad.h>
 #include "GLFW/glfw3.h"
+
+#include "Renderer.h"
+
 class Application;
-class Renderer;
 
 // Owns:
 // - The loop
@@ -25,8 +28,8 @@ public:
 
 private:
     GLFWwindow* window = nullptr;
-    Application* application = nullptr;
-    Renderer* renderer = nullptr;
+    Application* application = nullptr; //Engine doesn't own Application, thats why its a raw pointer, we just borrow it
+    std::unique_ptr<Renderer> renderer = nullptr;
 
     float lastFrame;
 };
