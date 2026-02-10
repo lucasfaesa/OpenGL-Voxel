@@ -13,6 +13,7 @@ public:
 
     void ProcessInput(GLFWwindow* window, float deltaTime);
     void Update(float deltaTime);
+    void Cleanup();
 
     const Camera& GetCamera() const;
     glm::mat4 GetModelMatrix() const;

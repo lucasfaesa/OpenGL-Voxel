@@ -49,6 +49,10 @@ void Application::Update(float deltaTime) {
     model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0,1,0));
 }
 
+void Application::Cleanup() {
+    mesh.reset(); //triggering mesh destructor
+}
+
 const Camera &Application::GetCamera() const {
     return camera;
 }
