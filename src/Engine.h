@@ -24,6 +24,8 @@ public:
 public:
     Engine(Application* app);
 
+    ~Engine();
+
     void Run();
 
 private:

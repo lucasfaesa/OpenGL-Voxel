@@ -1,12 +1,14 @@
 #include "Engine.h"
 #include "Renderer.h"
 #include "Application.h"
-#include <iostream>
+
+#include "GLDebug.h"
+#include "Logger.h"
 
 Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
 {
     if (!glfwInit()) {
-        std::cerr << "Failed to init GLFW\n";
+        LOG_ERROR("Failed to init GLFW");
     }
 
     window = glfwCreateWindow(window_width, window_height, "Voxel World", nullptr, nullptr);
@@ -17,8 +19,13 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
     glfwMakeContextCurrent(window);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to init GLAD\n";
+        LOG_ERROR("Failed to init GLAD");
     }
+
+    //activating openGL debug callbacks
+    glEnable(GL_DEBUG_OUTPUT);
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+    glDebugMessageCallback(DebugOpenGLErrorCallback, nullptr);
 
     glViewport(0, 0, window_width, window_height);
 
@@ -28,6 +35,15 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     renderer = std::make_unique<Renderer>();
+}
+
+Engine::~Engine()
+{
+    renderer.reset(); // Deletes renderer (and shaders) while context is alive
+    application->Cleanup(); //Deletes the mesh
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 }
 
 void Engine::Run()
@@ -46,7 +62,4 @@ void Engine::Run()
         renderer->BeginFrame();
         renderer->Draw(*application);
         renderer->EndFrame(window);
-    }
-
-    glfwTerminate();
-}
+    }}
