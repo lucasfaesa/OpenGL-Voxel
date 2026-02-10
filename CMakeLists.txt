@@ -36,6 +36,9 @@ add_executable(openGL_study src/main.cpp src/Camera.cpp
 		src/Mesh.h
 		src/Shader.cpp
 		src/Shader.h
+		src/Logger.h
+		src/GLDebug.cpp
+		src/GLDebug.h
 )
 
 #declares dependencies. 1 - links compiled code, 2 - propagates include paths, 3 - propagates compile definitions
