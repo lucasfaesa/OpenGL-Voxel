@@ -6,11 +6,11 @@
 
 Camera::Camera()
 {
-    position = {0,0,3};
+    position = {0,2,0};
     front = {0,0,-1};
     worldUp = {0,1,0};
 
-    yaw = -90.0f;
+    yaw = 45.0f;
     pitch = 0.0f;
     movementSpeed = 3.0f;
 

@@ -2,6 +2,7 @@
 // Created by lucas on 07/02/2026.
 //
 #pragma once
+#include <vector>
 #include <glad/glad.h>
 
 class Mesh {
@@ -15,6 +16,8 @@ public:
         glDeleteBuffers(1, &EBO);
     }
 
+    void UpdateData(const std::vector<float>& vertices, const std::vector<unsigned int>& indices);
+
     //no copy constructor
     Mesh(const Mesh&) = delete;
     //no copy assignment
@@ -22,5 +25,6 @@ public:
 
 private:
     unsigned int VAO, VBO, EBO;
+    unsigned int indexCount = 36;
 };
 

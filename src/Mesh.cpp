@@ -49,5 +49,20 @@ Mesh::Mesh() {
 
 void Mesh::Draw() const {
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_INT,0);
+    glDrawElements(GL_TRIANGLES, indexCount,GL_UNSIGNED_INT,0);
+}
+
+void Mesh::UpdateData(const std::vector<float> &vertices, const std::vector<unsigned> &indices)
+{
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned int),indices.data(),GL_DYNAMIC_DRAW);
+
+    this->indexCount = static_cast<unsigned int>(indices.size());
+
+    glBindVertexArray(0);
 }

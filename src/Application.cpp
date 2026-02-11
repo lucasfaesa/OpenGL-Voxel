@@ -6,8 +6,16 @@ Application::Application() {
 }
 
 void Application::Init() {
-    // Only call this after the OpenGL context is current and GLAD is loaded
+
     mesh = std::make_unique<Mesh>();
+    for(int x = 0; x < 16; x++) {
+        for(int z = 0; z < 16; z++) {
+            chunk.SetVoxel(x, 0, z, Voxels::SOLID_VOXEL); // Create a floor
+        }
+    }
+
+    chunk.CreateMesh();
+    mesh->UpdateData(chunk.GetVertices(), chunk.GetIndices());
 }
 
 void Application::ProcessInput(GLFWwindow *window, float deltaTime) {
@@ -45,8 +53,8 @@ void Application::ProcessInput(GLFWwindow *window, float deltaTime) {
 }
 
 void Application::Update(float deltaTime) {
-    model = glm::mat4(1.0f);
-    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0,1,0));
+    //model = glm::mat4(1.0f);
+    //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0,1,0));
 }
 
 void Application::Cleanup() {
