@@ -21,7 +21,7 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         LOG_ERROR("Failed to init GLAD");
     }
-
+    glEnable(GL_CULL_FACE);
     //activating openGL debug callbacks
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);

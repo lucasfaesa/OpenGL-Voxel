@@ -42,44 +42,85 @@ void Chunk::CreateMesh() {
     vertices.reserve(CHUNK_VOLUME * 24);
     indices.reserve(CHUNK_VOLUME * 36);
 
-    int vertexOffset = 0;
+    unsigned int vertexOffset = 0;
 
-    for (int x = 0; x < CHUNK_SIZE; x++)
-    {
-        for (int y = 0; y < CHUNK_SIZE; y++)
-        {
-            for (int z = 0; z < CHUNK_SIZE; z++)
-            {
-                const int voxelIndex = GetIndex(x,y,z);
+    for (int x = 0; x < CHUNK_SIZE; x++){
+        for (int y = 0; y < CHUNK_SIZE; y++){
+            for (int z = 0; z < CHUNK_SIZE; z++){
 
-                if (voxels[voxelIndex].type == Voxels::AIR_VOXEL)
+                if (GetVoxel(x,y,z).type == Voxels::AIR_VOXEL)
                     continue;
 
-                //We loop 8 times because a cube has 8 vertices
-                for (int i = 0; i < 8; i++)
-                {
-                    //Each vertex has 3 components: X, Y, Z
-                    //We multiply by 3 to jump through the VoxelVertices array correctly
-                    float vX = Voxels::VoxelVertices[i * 3 + 0] + x;
-                    float vY = Voxels::VoxelVertices[i * 3 + 1] + y;
-                    float vZ = Voxels::VoxelVertices[i * 3 + 2] + z;
+                NeighborsData currentVoxelNeighbors = GetNeighborsData(x,y,z);
 
-                    //Push these calculated world positions into the big buffer
-                    vertices.emplace_back(vX);
-                    vertices.emplace_back(vY);
-                    vertices.emplace_back(vZ);
-                }
+                if (!currentVoxelNeighbors.hasTopNeighbor)
+                    AddFaceData(Voxels::TopFace, Voxels::TopColor, x, y, z, vertexOffset);
 
-                //Push indices
-                for (int i = 0; i < 36; i++)
-                {
-                    indices.emplace_back(Voxels::VoxelIndices[i] + vertexOffset);
-                }
+                if (!currentVoxelNeighbors.hasBottomNeighbor)
+                    AddFaceData(Voxels::BottomFace, Voxels::BottomColor, x, y, z, vertexOffset);
 
-                vertexOffset += 8;
+                if (!currentVoxelNeighbors.hasLeftNeighbor)
+                    AddFaceData(Voxels::LeftFace, Voxels::LeftColor, x, y, z, vertexOffset);
+
+                if (!currentVoxelNeighbors.hasRightNeighbor)
+                    AddFaceData(Voxels::RightFace, Voxels::RightColor, x, y, z, vertexOffset);
+
+                if (!currentVoxelNeighbors.hasFrontNeighbor)
+                    AddFaceData(Voxels::FrontFace, Voxels::FrontColor, x, y, z, vertexOffset);
+
+                if (!currentVoxelNeighbors.hasBackNeighbor)
+                    AddFaceData(Voxels::BackFace, Voxels::BackColor, x, y, z, vertexOffset);
             }
         }
     }
+}
+
+const NeighborsData Chunk::GetNeighborsData(const int x, const int y, const int z) const
+{
+    NeighborsData data;
+
+    if (InBounds(x, y+1, z) && GetVoxel(x,y+1,z).type == Voxels::SOLID_VOXEL)
+        data.hasTopNeighbor = true;
+
+    if (InBounds(x, y-1, z) && GetVoxel(x,y-1,z).type == Voxels::SOLID_VOXEL)
+        data.hasBottomNeighbor = true;
+
+    if (InBounds(x-1, y, z) && GetVoxel(x-1,y,z).type == Voxels::SOLID_VOXEL)
+        data.hasLeftNeighbor = true;
+
+    if (InBounds(x+1, y, z) && GetVoxel(x+1,y,z).type == Voxels::SOLID_VOXEL)
+        data.hasRightNeighbor = true;
+
+    if (InBounds(x, y, z-1) && GetVoxel(x,y,z-1).type == Voxels::SOLID_VOXEL)
+        data.hasFrontNeighbor = true;
+
+    if (InBounds(x, y, z+1) && GetVoxel(x,y,z+1).type == Voxels::SOLID_VOXEL)
+        data.hasBackNeighbor = true;
+
+    return data;
+}
+
+void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], int x, int y, int z, unsigned int &offset)
+{
+    //1. Add the 4 vertices for this face, offset by the block's position
+    for (int i=0; i<4; i++)
+    {
+        vertices.emplace_back(faceTemplate[i*3+0] + static_cast<float>(x));
+        vertices.emplace_back(faceTemplate[i*3+1] + static_cast<float>(y));
+        vertices.emplace_back(faceTemplate[i*3+2] + static_cast<float>(z));
+
+        /*vertices.emplace_back(color[0]);
+        vertices.emplace_back(color[1]);
+        vertices.emplace_back(color[2]);*/
+    }
+
+    //2. add the 6 indices for this face
+    for (int i=0; i < 6; i++)
+    {
+        indices.emplace_back(Voxels::FaceIndices[i] + offset);
+    }
+
+    offset += 4;
 }
 
 bool Chunk::InBounds(const int x, const int y, const int z) {

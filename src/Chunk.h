@@ -8,6 +8,7 @@
 
 #include "Voxel.h"
 
+struct NeighborsData;
 
 class Chunk {
 public:
@@ -35,6 +36,19 @@ private:
 
     static bool InBounds(int x, int y, int z);
     static int GetIndex(int x, int y, int z);
+    const NeighborsData GetNeighborsData(const int x, const int y, const int z) const;
+    void AddFaceData(const float faceTemplate[12], const float color[3], int x, int y, int z, unsigned int& offset);
+};
+
+
+struct NeighborsData
+{
+    bool hasTopNeighbor = false;
+    bool hasBottomNeighbor = false;
+    bool hasFrontNeighbor = false;
+    bool hasBackNeighbor = false;
+    bool hasLeftNeighbor = false;
+    bool hasRightNeighbor = false;
 };
 
 

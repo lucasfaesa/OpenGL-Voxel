@@ -6,29 +6,63 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 
+
 static const char* vertexSrc = R"(
-#version 330 core
-layout (location = 0) in vec3 aPos;
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
 
-void main()
-{
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
-}
+    void main()
+    {
+        gl_Position = projection * view * model * vec4(aPos, 1.0);
+    }
 )";
+
+/*
+static const char* vertexSrc = R"(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    layout (location = 1) in vec3 aColor; // New color input
+
+    out vec3 ourColor; // Passing this to fragment shader
+
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
+
+    void main()
+    {
+        gl_Position = projection * view * model * vec4(aPos, 1.0);
+        ourColor = aColor;
+    }
+)";
+*/
 
 static const char* fragmentSrc = R"(
-#version 330 core
-out vec4 FragColor;
+    #version 330 core
+    out vec4 FragColor;
 
-void main()
-{
-    FragColor = vec4(1.0, 0.5, 0.2, 1.0);
-}
+    void main()
+    {
+        FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+    }
 )";
+
+/*
+static const char* fragmentSrc = R"(
+    #version 330 core
+    out vec4 FragColor;
+    in vec3 ourColor; // Received from vertex shader
+
+    void main()
+    {
+        FragColor = vec4(ourColor, 1.0);
+    }
+)";
+*/
 
 Shader::Shader()
 {

@@ -11,6 +11,42 @@ namespace Voxels
     static constexpr int AIR_VOXEL = 0;
     static constexpr int SOLID_VOXEL = 1;
 
+    static constexpr float TopColor[]    = { 1.0f, 0.0f, 0.0f }; // Red
+    static constexpr float BottomColor[] = { 0.0f, 1.0f, 0.0f }; // Green
+    static constexpr float LeftColor[]   = { 0.0f, 0.0f, 1.0f }; // Blue
+    static constexpr float RightColor[]  = { 1.0f, 1.0f, 0.0f }; // Yellow
+    static constexpr float FrontColor[]  = { 1.0f, 0.0f, 1.0f }; // Magenta
+    static constexpr float BackColor[]   = { 0.0f, 1.0f, 1.0f }; // Cyan
+
+    static constexpr float TopFace[] = {
+        0,1,1,  1,1,1,  1,1,0,  0,1,0  // Back-Left -> Back-Right -> Front-Right -> Front-Left
+    };
+
+    static constexpr float BottomFace[] = {
+        0,0,0,  1,0,0,  1,0,1,  0,0,1  // Front-Left -> Front-Right -> Back-Right -> Back-Left
+    };
+
+    static constexpr float LeftFace[] = {
+        0,0,1,  0,1,1,  0,1,0,  0,0,0  // Back-Bottom -> Back-Top -> Front-Top -> Front-Bottom
+    };
+
+    static constexpr float RightFace[] = {
+        1,0,0,  1,1,0,  1,1,1,  1,0,1  // Front-Bottom -> Front-Top -> Back-Top -> Back-Bottom
+    };
+
+    static constexpr float FrontFace[] = {
+        0,0,0,  0,1,0,  1,1,0,  1,0,0  // Left-Bottom -> Left-Top -> Right-Top -> Right-Bottom
+    };
+
+    static constexpr float BackFace[] = {
+        1,0,1,  1,1,1,  0,1,1,  0,0,1    // Bottom-Left -> Top-Left -> Top-Right -> Bottom-Right
+    };
+
+    static constexpr unsigned int FaceIndices[]
+    {
+        0, 1, 2,  2, 3, 0
+    };
+
     static constexpr float VoxelVertices[] = {
         0.0f, 0.0f, 0.0f, // 0: Bottom-front-left
         1.0f, 0.0f, 0.0f, // 1: Bottom-front-right

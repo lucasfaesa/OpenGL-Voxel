@@ -56,11 +56,25 @@ void Mesh::UpdateData(const std::vector<float> &vertices, const std::vector<unsi
 {
     glBindVertexArray(VAO);
 
+    // Upload Vertex Data (X, Y, Z, R, G, B)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
 
+    // Upload Index Data
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,indices.size() * sizeof(unsigned int),indices.data(),GL_DYNAMIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
+
+    /*
+    // 1. Position Attribute (Location 0)
+    // Stride is now 6 * sizeof(float) because each vertex has 6 components
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // 2. Color Attribute (Location 1)
+    // This attribute starts at an offset of 3 floats (after X, Y, Z)
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    */
 
     this->indexCount = static_cast<unsigned int>(indices.size());
 
