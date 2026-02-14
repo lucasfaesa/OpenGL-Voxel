@@ -10,6 +10,9 @@
 static const char* vertexSrc = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
+    layout (location = 1) in float aAO;
+
+    out float vAO; //passing this to the fragment shader
 
     uniform mat4 model;
     uniform mat4 view;
@@ -18,6 +21,7 @@ static const char* vertexSrc = R"(
     void main()
     {
         gl_Position = projection * view * model * vec4(aPos, 1.0);
+        vAO = aAO;
     }
 )";
 
@@ -41,13 +45,16 @@ static const char* vertexSrc = R"(
 )";
 */
 
+//in the fragment shader, out variables are meant to be sent to the screen
 static const char* fragmentSrc = R"(
     #version 330 core
     out vec4 FragColor;
+    in float vAO; //received from the vertex shader
 
     void main()
     {
-        FragColor = vec4(1.0, 0.5, 0.2, 1.0);
+        vec3 baseColor = vec3(1.0, 0.5, 0.2);
+        FragColor = vec4(baseColor * vAO, 1.0);
     }
 )";
 

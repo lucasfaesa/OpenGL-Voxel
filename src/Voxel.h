@@ -11,6 +11,8 @@ namespace Voxels
     static constexpr int AIR_VOXEL = 0;
     static constexpr int SOLID_VOXEL = 1;
 
+    enum class FaceDirection {Up, Down, Front, Back, Left, Right };
+
     static constexpr float TopColor[]    = { 1.0f, 0.0f, 0.0f }; // Red
     static constexpr float BottomColor[] = { 0.0f, 1.0f, 0.0f }; // Green
     static constexpr float LeftColor[]   = { 0.0f, 0.0f, 1.0f }; // Blue

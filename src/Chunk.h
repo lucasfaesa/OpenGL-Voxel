@@ -5,6 +5,7 @@
 #ifndef OPENGL_STUDY_CHUNK_H
 #define OPENGL_STUDY_CHUNK_H
 #include <vector>
+#include <array>
 
 #include "Voxel.h"
 
@@ -37,7 +38,9 @@ private:
     static bool InBounds(int x, int y, int z);
     static int GetIndex(int x, int y, int z);
     const NeighborsData GetNeighborsData(const int x, const int y, const int z) const;
-    void AddFaceData(const float faceTemplate[12], const float color[3], int x, int y, int z, unsigned int& offset);
+    void AddFaceData(const float faceTemplate[12], const float color[3], const std::array<uint8_t, 4> aoValues, int x, int y, int z, unsigned int& offset);
+    const std::array<uint8_t, 4> CheckAmbientOcclusion(const int x, const int y, const int z, Voxels::FaceDirection dir) const;
+    bool IsSolid (const int x, const int y, const int z) const;
 };
 
 

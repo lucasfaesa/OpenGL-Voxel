@@ -64,6 +64,17 @@ void Mesh::UpdateData(const std::vector<float> &vertices, const std::vector<unsi
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
 
+    //the "stride" is the total size of one vertex
+    //Calculation 4 (positions + ao) * sizeof(float) = 16 bytes
+    //This tells OpenGL: "To find the next vertex, skip 16 bytes from the start of the current one
+
+    //two calls to glVertexAttribPointer now (1 for position (size 3) and 1 for ambient occlusion (size 1)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(3 * sizeof(float))); //(void*)(3 * sizeof(float)) [starts after the 3 position floats)
+    glEnableVertexAttribArray(1);
+
     /*
     // 1. Position Attribute (Location 0)
     // Stride is now 6 * sizeof(float) because each vertex has 6 components

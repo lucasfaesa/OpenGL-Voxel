@@ -8,9 +8,23 @@ Application::Application() {
 void Application::Init() {
 
     mesh = std::make_unique<Mesh>();
+
+    // 1. Fill the base floor (y=0) as you already did
     for(int x = 0; x < 16; x++) {
         for(int z = 0; z < 16; z++) {
-            chunk.SetVoxel(x, 0, z, Voxels::SOLID_VOXEL); // Create a floor
+            chunk.SetVoxel(x, 0, z, Voxels::SOLID_VOXEL);
+        }
+    }
+
+    // 2. Build the pyramid layers starting from y=1
+    for (int y = 1; y < 8; y++) {
+        int start = y;          // The higher we go, the further in we start
+        int end = 16 - y;       // The higher we go, the earlier we stop
+
+        for (int x = start; x < end; x++) {
+            for (int z = start; z < end; z++) {
+                chunk.SetVoxel(x, y, z, Voxels::SOLID_VOXEL);
+            }
         }
     }
 

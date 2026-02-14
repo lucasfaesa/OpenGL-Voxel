@@ -12,7 +12,7 @@ Camera::Camera()
 
     yaw = 45.0f;
     pitch = 0.0f;
-    movementSpeed = 3.0f;
+    movementSpeed = 10.0f;
 
     UpdateCameraVectors();
 }
