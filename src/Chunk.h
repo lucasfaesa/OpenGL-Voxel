@@ -6,7 +6,10 @@
 #define OPENGL_STUDY_CHUNK_H
 #include <vector>
 #include <array>
+#include <memory>
 
+#include "ChunkPos.h"
+#include "Mesh.h"
 #include "Voxel.h"
 
 struct NeighborsData;
@@ -27,9 +30,14 @@ public:
     const std::vector<float>& GetVertices() const;
     const std::vector<unsigned int>& GetIndices() const;
 
+    void SetPosition(const ChunkPos pos);
+    Mesh* GetMesh() const;
     void CreateMesh();
 
 private:
+    ChunkPos position;
+    std::unique_ptr<Mesh> mesh = nullptr;
+
     std::vector<Voxel> voxels;
 
     std::vector<float> vertices;

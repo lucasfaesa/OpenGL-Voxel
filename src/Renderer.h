@@ -4,7 +4,10 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
+
+#include "Camera.h"
 #include "Shader.h"
+#include "World.h"
 
 // Owns:
 // - OpenGL calls
@@ -18,7 +21,7 @@ class Renderer {
 public:
     Renderer();
     void BeginFrame();
-    void Draw(const Application& app);
+    void Draw(World& world, const Camera& camera);
     void EndFrame(GLFWwindow* window);
 
 private:

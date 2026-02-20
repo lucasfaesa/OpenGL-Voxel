@@ -34,6 +34,16 @@ const std::vector<unsigned int> & Chunk::GetIndices() const
     return indices;
 }
 
+void Chunk::SetPosition(const ChunkPos pos)
+{
+    position = pos;
+}
+
+Mesh* Chunk::GetMesh() const
+{
+    return mesh.get();
+}
+
 void Chunk::CreateMesh() {
 
     vertices.clear();
@@ -92,6 +102,13 @@ void Chunk::CreateMesh() {
             }
         }
     }
+
+    if (!mesh)
+    {
+        mesh = std::make_unique<Mesh>();
+    }
+
+    mesh->UpdateData(vertices, indices);
 }
 
 const NeighborsData Chunk::GetNeighborsData(const int x, const int y, const int z) const
@@ -124,18 +141,22 @@ void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], cons
     //1. Add the 4 vertices for this face, offset by the block's position
     for (int i=0; i<4; i++)
     {
-        vertices.emplace_back(faceTemplate[i*3+0] + static_cast<float>(x));
+        //offseting the Chunk by its position in the world
+        float worldX = static_cast<float>(x + position.x * CHUNK_SIZE);
+        float worldZ = static_cast<float>(z + position.z * CHUNK_SIZE);
+
+        vertices.emplace_back(faceTemplate[i*3+0] + worldX);
         vertices.emplace_back(faceTemplate[i*3+1] + static_cast<float>(y));
-        vertices.emplace_back(faceTemplate[i*3+2] + static_cast<float>(z));
+        vertices.emplace_back(faceTemplate[i*3+2] + worldZ);
 
         //normalizing AO from 0 to 3 to 0.0 to 1.0
         vertices.emplace_back(static_cast<float>(aoValues[i]) / 3.0f);
+
         /*vertices.emplace_back(color[0]);
         vertices.emplace_back(color[1]);
         vertices.emplace_back(color[2]);*/
     }
 
-    // Inside AddFaceData in Chunk.cpp
     if (aoValues[0] + aoValues[2] > aoValues[1] + aoValues[3]) {
         // Connect 0 and 2
         indices.emplace_back(offset + 0);

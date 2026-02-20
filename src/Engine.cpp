@@ -40,7 +40,6 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
 Engine::~Engine()
 {
     renderer.reset(); // Deletes renderer (and shaders) while context is alive
-    application->Cleanup(); //Deletes the mesh
 
     glfwDestroyWindow(window);
     glfwTerminate();
@@ -60,6 +59,6 @@ void Engine::Run()
         application->Update(deltaTime);
 
         renderer->BeginFrame();
-        renderer->Draw(*application);
+        renderer->Draw(application->GetWorld(), application->GetCamera());
         renderer->EndFrame(window);
     }}

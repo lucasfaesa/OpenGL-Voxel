@@ -1,35 +1,15 @@
 #include "Application.h"
+
+#include <string>
+
+#include "Logger.h"
 #include "Mesh.h"
 
 Application::Application() {
-    model = glm::mat4(1.0f);
 }
 
 void Application::Init() {
 
-    mesh = std::make_unique<Mesh>();
-
-    // 1. Fill the base floor (y=0) as you already did
-    for(int x = 0; x < 16; x++) {
-        for(int z = 0; z < 16; z++) {
-            chunk.SetVoxel(x, 0, z, Voxels::SOLID_VOXEL);
-        }
-    }
-
-    // 2. Build the pyramid layers starting from y=1
-    for (int y = 1; y < 8; y++) {
-        int start = y;          // The higher we go, the further in we start
-        int end = 16 - y;       // The higher we go, the earlier we stop
-
-        for (int x = start; x < end; x++) {
-            for (int z = start; z < end; z++) {
-                chunk.SetVoxel(x, y, z, Voxels::SOLID_VOXEL);
-            }
-        }
-    }
-
-    chunk.CreateMesh();
-    mesh->UpdateData(chunk.GetVertices(), chunk.GetIndices());
 }
 
 void Application::ProcessInput(GLFWwindow *window, float deltaTime) {
@@ -68,19 +48,23 @@ void Application::ProcessInput(GLFWwindow *window, float deltaTime) {
 
 void Application::Update(float deltaTime) {
     //model = glm::mat4(1.0f);
-    //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0,1,0));
-}
+    //model = glm::rotate(model, (float)glfwGetTime(), glm::vec3std::to_string((0,1,0));
+    ChunkPos currentPlayerChunkPos = world.GetChunkPosFromWorld(camera.position);
 
-void Application::Cleanup() {
-    mesh.reset(); //triggering mesh destructor
+    if (currentPlayerChunkPos != lastChunkPosPlayerWasIn)
+    {
+        world.UpdateChunks(camera.position);
+        world.CleanupChunks(camera.position);
+        lastChunkPosPlayerWasIn = currentPlayerChunkPos;
+    }
+
 }
 
 const Camera &Application::GetCamera() const {
     return camera;
 }
-glm::mat4 Application::GetModelMatrix() const {
-    return model;
-}
-Mesh *Application::GetMesh() const {
-    return mesh.get();
+
+World& Application::GetWorld()
+{
+    return world;
 }

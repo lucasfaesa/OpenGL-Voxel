@@ -15,11 +15,13 @@ public:
     void ProcessKeyboard(bool forward, bool backward, bool left, bool right, bool up, bool down, float deltaTime);
     void ProcessMouse(float dx, float dy);
 
+public:
+    glm::vec3 position;
+
 private:
     void UpdateCameraVectors();
 
 private:
-    glm::vec3 position;
     glm::vec3 front;
     glm::vec3 up;
     glm::vec3 right;
