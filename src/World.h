@@ -9,7 +9,7 @@
 
 #include "Chunk.h"
 #include "ChunkPos.h"
-
+#include "FastNoiseLite.h"
 
 class World
 {
@@ -22,8 +22,13 @@ public:
     void Render();
 
 private:
-    static constexpr int renderDistance = 2;
+    FastNoiseLite fastNoiseLite;
+    static constexpr int renderDistance = 16;
     std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> chunks_map;
+
+private:
+    void GenerateNoiseVoxels(std::unique_ptr<Chunk>& chunk, const ChunkPos& chunkPos);
+
 };
 
 
