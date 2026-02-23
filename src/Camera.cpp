@@ -6,13 +6,13 @@
 
 Camera::Camera()
 {
-    position = {0,2,0};
+    position = {0,17,0};
     front = {0,0,-1};
     worldUp = {0,1,0};
 
     yaw = 45.0f;
     pitch = 0.0f;
-    movementSpeed = 10.0f;
+    movementSpeed = 40.0f;
 
     UpdateCameraVectors();
 }

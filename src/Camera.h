@@ -38,5 +38,5 @@ private:
     static constexpr float maxPitch = 89.0f;
     static constexpr float fov = 45.0f;
     static constexpr float near_plane = 0.1f;
-    static constexpr float far_plane = 100.0f;
+    static constexpr float far_plane = 1000.0f;
 };
