@@ -21,7 +21,13 @@ void Renderer::Draw(World& world, const Camera& camera) {
     shader->SetMat4("view", camera.GetViewMatrix());
     shader->SetMat4("projection", camera.GetProjectionMatrix(static_cast<float>(Engine::window_width)/Engine::window_height));
 
-    world.Render();
+    float aspectRatio = static_cast<float>(Engine::window_width)/ Engine::window_height;
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 proj = camera.GetProjectionMatrix(aspectRatio);
+
+    frustum_.Update(proj * view);
+
+    world.Render(frustum_);
 }
 
 void Renderer::EndFrame(GLFWwindow *window) {

@@ -45,6 +45,8 @@ add_executable(openGL_study src/main.cpp src/Camera.cpp
 		src/ChunkPos.h
 		src/World.cpp
 		src/World.h
+		src/Frustum.cpp
+		src/Frustum.h
 )
 
 #declares dependencies. 1 - links compiled code, 2 - propagates include paths, 3 - propagates compile definitions

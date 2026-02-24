@@ -10,6 +10,7 @@
 #include "Chunk.h"
 #include "ChunkPos.h"
 #include "FastNoiseLite.h"
+#include "Frustum.h"
 
 class World
 {
@@ -19,7 +20,7 @@ public:
 
     void UpdateChunks(glm::vec3 playerPos);
     void CleanupChunks(glm::vec3 playerPos);
-    void Render();
+    void Render(const Frustum& frustum);
 
 private:
     FastNoiseLite fastNoiseLite;

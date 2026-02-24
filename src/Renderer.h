@@ -26,6 +26,7 @@ public:
 
 private:
     std::unique_ptr<Shader> shader = nullptr;
+    Frustum frustum_;
 };
 
 

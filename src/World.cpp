@@ -3,6 +3,7 @@
 //
 
 #include "World.h"
+
 #include "Logger.h"
 
 ChunkPos World::GetChunkPosFromWorld(const glm::vec3 playerPos)
@@ -126,15 +127,22 @@ void World::CleanupChunks(glm::vec3 playerPos)
     }
 }
 
-void World::Render()
+void World::Render(const Frustum& frustum)
 {
     for (auto&[pos, chunk] : chunks_map)
     {
-        Mesh* mesh = chunk->GetMesh();
-        if (mesh)
+        glm::vec3 minBound = glm::vec3(pos.x * Chunk::CHUNK_SIZE, 0, pos.z * Chunk::CHUNK_SIZE);
+        glm::vec3 maxBound = minBound + glm::vec3(Chunk::CHUNK_SIZE, Chunk::CHUNK_SIZE, Chunk::CHUNK_SIZE);
+
+        if (frustum.IsBoxVisible(minBound, maxBound))
         {
-            mesh->Draw();
+            Mesh* mesh = chunk->GetMesh();
+            if (mesh)
+            {
+                mesh->Draw();
+            }
         }
+
     }
 }
 
