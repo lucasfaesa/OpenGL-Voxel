@@ -22,11 +22,15 @@ public:
     void CleanupChunks(glm::vec3 playerPos);
     void Render(const Frustum& frustum);
 
+    void Cleanup();
 private:
     FastNoiseLite fastNoiseLite;
     static constexpr int renderDistance = 16;
     std::unordered_map<ChunkPos, std::unique_ptr<Chunk>> chunks_map;
+    std::vector<std::unique_ptr<Chunk>> chunk_pool;
 
+    std::unique_ptr<Chunk> RequestChunk();
+    void RecycleChunk(std::unique_ptr<Chunk> chunk);
 private:
     void GenerateNoiseVoxels(std::unique_ptr<Chunk>& chunk, const ChunkPos& chunkPos);
 

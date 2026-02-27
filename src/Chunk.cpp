@@ -34,6 +34,21 @@ const std::vector<unsigned int> & Chunk::GetIndices() const
     return indices;
 }
 
+void Chunk::ClearData()
+{
+    // Reset all voxels to AIR
+    std::fill(voxels.begin(), voxels.end(), Voxel{Voxels::AIR_VOXEL});
+
+    vertices.clear();
+    indices.clear();
+
+    if (mesh)
+    {
+        mesh->UpdateData(vertices, indices);
+    }
+
+}
+
 void Chunk::SetPosition(const ChunkPos pos)
 {
     position = pos;

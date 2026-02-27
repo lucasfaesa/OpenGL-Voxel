@@ -45,7 +45,8 @@ void World::UpdateChunks(glm::vec3 playerPos)
             if (chunks_map.find(targetPos) == chunks_map.end())
             {
                 //it doesnt exist, lets build it
-                std::unique_ptr<Chunk> newChunk = std::make_unique<Chunk>();
+                //std::unique_ptr<Chunk> newChunk = std::make_unique<Chunk>();
+                std::unique_ptr<Chunk> newChunk = RequestChunk();
 
                 newChunk->SetPosition(targetPos);
 
@@ -59,6 +60,31 @@ void World::UpdateChunks(glm::vec3 playerPos)
             }
         }
     }
+}
+
+std::unique_ptr<Chunk> World::RequestChunk()
+{
+    if (chunk_pool.empty())
+    {
+        LOG_INFO("Pool empty. Allocating NEW chunk memory.");
+        return std::make_unique<Chunk>();
+    }
+    else
+    {
+        LOG_INFO("Pool hit! Reusing chunk from graveyard. Current Pool Size: %d", (int)chunk_pool.size() - 1);
+        std::unique_ptr<Chunk> chunk = std::move(chunk_pool.back());
+        chunk_pool.pop_back();
+
+        chunk->ClearData();
+
+        return chunk;
+    }
+}
+
+void World::RecycleChunk(std::unique_ptr<Chunk> chunk)
+{
+    chunk_pool.push_back(std::move(chunk));
+    LOG_INFO("Chunk recycled to pool. Current Pool Size: %d", (int)chunk_pool.size());
 }
 
 void World::GenerateNoiseVoxels(std::unique_ptr<Chunk>& chunk, const ChunkPos &chunkPos)
@@ -119,7 +145,11 @@ void World::CleanupChunks(glm::vec3 playerPos)
         //Check if its outside the interest zone, renderDistance +1 as a safety buffer (just for it to not unload when the player flickers between chunks)
         if (distX > renderDistance +1 || distZ > renderDistance +1)
         {
+            std::unique_ptr<Chunk> chunkToPool = std::move(iterator->second);
+
             iterator = chunks_map.erase(iterator); //erase() returns the iterator to the NEXT element
+
+            RecycleChunk(std::move(chunkToPool));
         }else
         {
             ++iterator;
@@ -145,4 +175,12 @@ void World::Render(const Frustum& frustum)
 
     }
 }
+
+void World::Cleanup()
+{
+    chunks_map.clear();
+    chunk_pool.clear();
+}
+
+
 

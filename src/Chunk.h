@@ -30,6 +30,7 @@ public:
     const std::vector<float>& GetVertices() const;
     const std::vector<unsigned int>& GetIndices() const;
 
+    void ClearData();
     void SetPosition(const ChunkPos pos);
     Mesh* GetMesh() const;
     void CreateMesh();

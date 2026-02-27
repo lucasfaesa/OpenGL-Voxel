@@ -40,7 +40,8 @@ Engine::Engine(Application *app) : application(app), lastFrame(0.0f)
 Engine::~Engine()
 {
     renderer.reset(); // Deletes renderer (and shaders) while context is alive
-
+    application->GetWorld().Cleanup();
+    
     glfwDestroyWindow(window);
     glfwTerminate();
 }
