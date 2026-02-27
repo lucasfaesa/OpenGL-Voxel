@@ -11,8 +11,10 @@ static const char* vertexSrc = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in float aAO;
+    layout (location = 2) in float aFaceLight;
 
     out float vAO; //passing this to the fragment shader
+    out float vFaceLight;
 
     uniform mat4 model;
     uniform mat4 view;
@@ -22,6 +24,7 @@ static const char* vertexSrc = R"(
     {
         gl_Position = projection * view * model * vec4(aPos, 1.0);
         vAO = aAO;
+        vFaceLight = aFaceLight;
     }
 )";
 
@@ -50,11 +53,13 @@ static const char* fragmentSrc = R"(
     #version 330 core
     out vec4 FragColor;
     in float vAO; //received from the vertex shader
+    in float vFaceLight;
 
     void main()
     {
         vec3 baseColor = vec3(1.0, 0.5, 0.2);
-        FragColor = vec4(baseColor * vAO, 1.0);
+        float softenedAO = mix(0.5, 1.0, vAO);
+        FragColor = vec4(baseColor * softenedAO * vFaceLight, 1.0);
     }
 )";
 

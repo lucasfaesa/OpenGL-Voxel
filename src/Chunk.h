@@ -30,6 +30,8 @@ public:
     const std::vector<float>& GetVertices() const;
     const std::vector<unsigned int>& GetIndices() const;
 
+    float GetFaceLight(Voxels::FaceDirection direction);
+
     void ClearData();
     void SetPosition(const ChunkPos pos);
     Mesh* GetMesh() const;
@@ -47,7 +49,7 @@ private:
     static bool InBounds(int x, int y, int z);
     static int GetIndex(int x, int y, int z);
     const NeighborsData GetNeighborsData(const int x, const int y, const int z) const;
-    void AddFaceData(const float faceTemplate[12], const float color[3], const std::array<uint8_t, 4> aoValues, int x, int y, int z, unsigned int& offset);
+    void AddFaceData(const float faceTemplate[12], const float color[3], const std::array<uint8_t, 4> aoValues,Voxels::FaceDirection direction, int x, int y, int z, unsigned int& offset);
     const std::array<uint8_t, 4> CheckAmbientOcclusion(const int x, const int y, const int z, Voxels::FaceDirection dir) const;
     bool IsSolid (const int x, const int y, const int z) const;
 };

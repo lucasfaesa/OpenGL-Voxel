@@ -41,7 +41,7 @@ Engine::~Engine()
 {
     renderer.reset(); // Deletes renderer (and shaders) while context is alive
     application->GetWorld().Cleanup();
-    
+
     glfwDestroyWindow(window);
     glfwTerminate();
 }

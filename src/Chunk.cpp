@@ -34,6 +34,19 @@ const std::vector<unsigned int> & Chunk::GetIndices() const
     return indices;
 }
 
+float Chunk::GetFaceLight(Voxels::FaceDirection direction)
+{
+    switch (direction) {
+        case Voxels::FaceDirection::Up:    return 1.0f;  // Top (Direct Sun)
+        case Voxels::FaceDirection::Front:
+        case Voxels::FaceDirection::Back:  return 0.85f; // Side A
+        case Voxels::FaceDirection::Left:
+        case Voxels::FaceDirection::Right: return 0.70f; // Side B
+        case Voxels::FaceDirection::Down:  return 0.45f; // Bottom (Darkest)
+        default: return 1.0f;
+    }
+}
+
 void Chunk::ClearData()
 {
     // Reset all voxels to AIR
@@ -82,37 +95,32 @@ void Chunk::CreateMesh() {
                 if (!currentVoxelNeighbors.hasTopNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Up);
-                    AddFaceData(Voxels::TopFace, Voxels::TopColor, aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::TopFace, Voxels::TopColor, aoValues, Voxels::FaceDirection::Up, x, y, z, vertexOffset);
                 }
                 if (!currentVoxelNeighbors.hasBottomNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Down);
-
-                    AddFaceData(Voxels::BottomFace, Voxels::BottomColor,aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::BottomFace, Voxels::BottomColor, aoValues, Voxels::FaceDirection::Down, x, y, z, vertexOffset);
                 }
                 if (!currentVoxelNeighbors.hasLeftNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Left);
-
-                    AddFaceData(Voxels::LeftFace, Voxels::LeftColor, aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::LeftFace, Voxels::LeftColor, aoValues, Voxels::FaceDirection::Left, x, y, z, vertexOffset);
                 }
                 if (!currentVoxelNeighbors.hasRightNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Right);
-
-                    AddFaceData(Voxels::RightFace, Voxels::RightColor,aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::RightFace, Voxels::RightColor, aoValues, Voxels::FaceDirection::Right, x, y, z, vertexOffset);
                 }
                 if (!currentVoxelNeighbors.hasFrontNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Front);
-
-                    AddFaceData(Voxels::FrontFace, Voxels::FrontColor,aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::FrontFace, Voxels::FrontColor, aoValues, Voxels::FaceDirection::Front, x, y, z, vertexOffset);
                 }
                 if (!currentVoxelNeighbors.hasBackNeighbor)
                 {
                     aoValues = CheckAmbientOcclusion(x,y,z, Voxels::FaceDirection::Back);
-
-                    AddFaceData(Voxels::BackFace, Voxels::BackColor, aoValues, x, y, z, vertexOffset);
+                    AddFaceData(Voxels::BackFace, Voxels::BackColor, aoValues, Voxels::FaceDirection::Back, x, y, z, vertexOffset);
                 }
             }
         }
@@ -151,29 +159,36 @@ const NeighborsData Chunk::GetNeighborsData(const int x, const int y, const int 
     return data;
 }
 
-void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], const std::array<uint8_t, 4> aoValues, int x, int y, int z, unsigned int &offset)
+void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], const std::array<uint8_t, 4> aoValues,Voxels::FaceDirection direction, int x, int y, int z, unsigned int& offset)
 {
-    //1. Add the 4 vertices for this face, offset by the block's position
-    for (int i=0; i<4; i++)
+    // Determine the light intensity based on face direction
+    float faceLight = 1.0f;
+    if (direction == Voxels::FaceDirection::Up)         faceLight = 1.0f;  // Direct sunlight
+    else if (direction == Voxels::FaceDirection::Front) faceLight = 0.8f;  // Sun hitting the front
+    else if (direction == Voxels::FaceDirection::Left)  faceLight = 0.7f;  // Sun hitting the side
+    else if (direction == Voxels::FaceDirection::Right) faceLight = 0.6f;  // Shadow side
+    else if (direction == Voxels::FaceDirection::Back)  faceLight = 0.4f;  // Shadow side
+    else if (direction == Voxels::FaceDirection::Down)  faceLight = 0.2f;  // Bottom
+
+    for (int i = 0; i < 4; i++)
     {
-        //offseting the Chunk by its position in the world
         float worldX = static_cast<float>(x + position.x * CHUNK_SIZE);
         float worldZ = static_cast<float>(z + position.z * CHUNK_SIZE);
 
+        // 1-3. Position
         vertices.emplace_back(faceTemplate[i*3+0] + worldX);
         vertices.emplace_back(faceTemplate[i*3+1] + static_cast<float>(y));
         vertices.emplace_back(faceTemplate[i*3+2] + worldZ);
 
-        //normalizing AO from 0 to 3 to 0.0 to 1.0
+        // 4. Ambient Occlusion (normalized)
         vertices.emplace_back(static_cast<float>(aoValues[i]) / 3.0f);
 
-        /*vertices.emplace_back(color[0]);
-        vertices.emplace_back(color[1]);
-        vertices.emplace_back(color[2]);*/
+        // 5. Face Lighting (New Float)
+        vertices.emplace_back(faceLight);
     }
 
+    // Indices logic (same as your original)
     if (aoValues[0] + aoValues[2] > aoValues[1] + aoValues[3]) {
-        // Connect 0 and 2
         indices.emplace_back(offset + 0);
         indices.emplace_back(offset + 1);
         indices.emplace_back(offset + 2);
@@ -181,7 +196,6 @@ void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], cons
         indices.emplace_back(offset + 3);
         indices.emplace_back(offset + 0);
     } else {
-        // Connect 1 and 3 (the "flip")
         indices.emplace_back(offset + 1);
         indices.emplace_back(offset + 2);
         indices.emplace_back(offset + 3);
@@ -189,13 +203,6 @@ void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], cons
         indices.emplace_back(offset + 0);
         indices.emplace_back(offset + 1);
     }
-
-    //2. add the 6 indices for this face
-    /*for (int i=0; i < 6; i++)
-    {
-        indices.emplace_back(Voxels::FaceIndices[i] + offset);
-    }*/
-
     offset += 4;
 }
 
