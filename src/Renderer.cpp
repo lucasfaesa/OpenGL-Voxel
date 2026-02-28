@@ -2,7 +2,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 
-Renderer::Renderer()
+Renderer::Renderer() : grass("../assets/grass.jpg")
 {
     shader = std::make_unique<Shader>();
     glEnable(GL_DEPTH_TEST);
@@ -13,8 +13,10 @@ void Renderer::BeginFrame() {
 }
 
 void Renderer::Draw(World& world, const Camera& camera) {
-    shader->Bind();
 
+    shader->Bind();
+    grass.Bind(0);
+    shader->SetInt("u_Texture", 0);
     // We use an identity matrix for 'model' because the chunk
     // positions are already baked into the vertices
     shader->SetMat4("model", glm::mat4(1.0f));

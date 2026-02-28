@@ -170,6 +170,22 @@ void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], cons
     else if (direction == Voxels::FaceDirection::Back)  faceLight = 0.4f;  // Shadow side
     else if (direction == Voxels::FaceDirection::Down)  faceLight = 0.2f;  // Bottom
 
+    int column = 1;
+    if (direction == Voxels::FaceDirection::Up) column = 0;
+    else if (direction == Voxels::FaceDirection::Down) column = 2;
+
+    // 2. Calculate the slice boundaries
+    float uStart = static_cast<float>(column) / 3.0f;
+    float uEnd   = static_cast<float>(column + 1) / 3.0f;
+
+    float uvs[] = {
+        uStart, 0.0f,
+        uEnd,   0.0f,
+        uEnd,   1.0f,
+        uStart, 1.0f
+    };
+
+
     for (int i = 0; i < 4; i++)
     {
         float worldX = static_cast<float>(x + position.x * CHUNK_SIZE);
@@ -183,8 +199,12 @@ void Chunk::AddFaceData(const float faceTemplate[12], const float color[3], cons
         // 4. Ambient Occlusion (normalized)
         vertices.emplace_back(static_cast<float>(aoValues[i]) / 3.0f);
 
-        // 5. Face Lighting (New Float)
+        // 5. Face Lighting
         vertices.emplace_back(faceLight);
+
+        // Textures (UV)
+        vertices.emplace_back(uvs[i * 2 + 0]);
+        vertices.emplace_back(uvs[i * 2 + 1]);
     }
 
     // Indices logic (same as your original)

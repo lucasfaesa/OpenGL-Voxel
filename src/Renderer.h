@@ -7,6 +7,7 @@
 
 #include "Camera.h"
 #include "Shader.h"
+#include "Texture.h"
 #include "World.h"
 
 // Owns:
@@ -27,6 +28,7 @@ public:
 private:
     std::unique_ptr<Shader> shader = nullptr;
     Frustum frustum_;
+    Texture grass;
 };
 
 

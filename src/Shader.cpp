@@ -12,10 +12,11 @@ static const char* vertexSrc = R"(
     layout (location = 0) in vec3 aPos;
     layout (location = 1) in float aAO;
     layout (location = 2) in float aFaceLight;
+    layout (location = 3) in vec2 aTexCoord;
 
     out float vAO; //passing this to the fragment shader
     out float vFaceLight;
-
+    out vec2 vTexCoord;
     uniform mat4 model;
     uniform mat4 view;
     uniform mat4 projection;
@@ -25,6 +26,7 @@ static const char* vertexSrc = R"(
         gl_Position = projection * view * model * vec4(aPos, 1.0);
         vAO = aAO;
         vFaceLight = aFaceLight;
+        vTexCoord = aTexCoord;
     }
 )";
 
@@ -54,12 +56,16 @@ static const char* fragmentSrc = R"(
     out vec4 FragColor;
     in float vAO; //received from the vertex shader
     in float vFaceLight;
+    uniform sampler2D u_Texture;
+    in vec2 vTexCoord;
 
     void main()
     {
-        vec3 baseColor = vec3(1.0, 0.5, 0.2);
+        vec4 texColor = texture(u_Texture, vTexCoord);
+        if(texColor.a < 0.1) discard;
+
         float softenedAO = mix(0.5, 1.0, vAO);
-        FragColor = vec4(baseColor * softenedAO * vFaceLight, 1.0);
+        FragColor = vec4(texColor.rgb * softenedAO * vFaceLight, 1.0);
     }
 )";
 
@@ -102,4 +108,9 @@ void Shader::Bind() const {
 void Shader::SetMat4(const char *name, const glm::mat4 &mat) {
     int loc = glGetUniformLocation(ID, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
+void Shader::SetInt(const std::string &name, int value)
+{
+    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }

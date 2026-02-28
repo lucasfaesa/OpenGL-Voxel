@@ -66,12 +66,12 @@ std::unique_ptr<Chunk> World::RequestChunk()
 {
     if (chunk_pool.empty())
     {
-        LOG_INFO("Pool empty. Allocating NEW chunk memory.");
+   //     LOG_INFO("Pool empty. Allocating NEW chunk memory.");
         return std::make_unique<Chunk>();
     }
     else
     {
-        LOG_INFO("Pool hit! Reusing chunk from graveyard. Current Pool Size: %d", (int)chunk_pool.size() - 1);
+   //     LOG_INFO("Pool hit! Reusing chunk from graveyard. Current Pool Size: %d", (int)chunk_pool.size() - 1);
         std::unique_ptr<Chunk> chunk = std::move(chunk_pool.back());
         chunk_pool.pop_back();
 
@@ -84,7 +84,7 @@ std::unique_ptr<Chunk> World::RequestChunk()
 void World::RecycleChunk(std::unique_ptr<Chunk> chunk)
 {
     chunk_pool.push_back(std::move(chunk));
-    LOG_INFO("Chunk recycled to pool. Current Pool Size: %d", (int)chunk_pool.size());
+//    LOG_INFO("Chunk recycled to pool. Current Pool Size: %d", (int)chunk_pool.size());
 }
 
 void World::GenerateNoiseVoxels(std::unique_ptr<Chunk>& chunk, const ChunkPos &chunkPos)

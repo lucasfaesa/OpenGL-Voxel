@@ -2,6 +2,7 @@
 // Created by lucas on 08/02/2026.
 //
 #pragma once
+#include <string>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
@@ -11,6 +12,7 @@ public:
     Shader();
     void Bind() const;
     void SetMat4(const char* name, const glm::mat4& mat);
+    void SetInt(const std::string& name, int value);
 
     ~Shader() {
         glDeleteProgram(ID);

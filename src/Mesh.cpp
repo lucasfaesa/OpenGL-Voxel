@@ -64,7 +64,7 @@ void Mesh::UpdateData(const std::vector<float> &vertices, const std::vector<unsi
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_DYNAMIC_DRAW);
 
-    int stride = 5 * sizeof(float);
+    int stride = 7 * sizeof(float);
 
     // Position (Location 0)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
@@ -77,6 +77,10 @@ void Mesh::UpdateData(const std::vector<float> &vertices, const std::vector<unsi
     // Face Light (Location 2) - NEW
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, stride, (void*)(4 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(3,2,GL_FLOAT, GL_FALSE, stride, (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+
 
     this->indexCount = static_cast<unsigned int>(indices.size());
     glBindVertexArray(0);
