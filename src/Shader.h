@@ -6,10 +6,11 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 
-
 class Shader {
 public:
     Shader();
+    Shader(const char* vertexSource, const char* fragmentSource);
+
     void Bind() const;
     void SetMat4(const char* name, const glm::mat4& mat);
     void SetInt(const std::string& name, int value);
@@ -18,11 +19,7 @@ public:
         glDeleteProgram(ID);
     }
 
-    //delete copy constructor, "Objects of thus type are not allowed to be copied"
     Shader(const Shader&) = delete;
-
-    //changing copy assignment operator "="
-    //Once deleted, any attempt to copy the object is a compile-time error, not a runtime one.
     Shader& operator=(const Shader&) = delete;
 
 private:
